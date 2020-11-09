@@ -16,6 +16,7 @@ use std::fmt;
 use std::iter;
 
 use curv::arithmetic::traits::*;
+use curv::arithmetic::big_num::One;
 use curv::BigInt;
 use paillier::{extract_nroot, DecryptionKey, EncryptionKey};
 use rayon::prelude::*;
@@ -201,12 +202,12 @@ where
 {
     let mut hasher = Sha256::new();
     for value in it {
-        let bytes: Vec<u8> = value.borrow().into();
+        let bytes: Vec<u8> = value.borrow().to_vec();
         hasher.input(&bytes);
     }
 
     let result_hex = hasher.result();
-    BigInt::from(&result_hex[..])
+    BigInt::from_vec(&result_hex[..])
 }
 
 #[cfg(test)]

@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion, ParameterizedBenchmark};
-use curv::arithmetic::traits::Samplable;
+use curv::arithmetic::{big_num::Integer, traits::Samplable};
 use curv::BigInt;
 use paillier::{EncryptWithChosenRandomness, Keypair, Paillier, Randomness, RawPlaintext};
 

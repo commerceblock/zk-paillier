@@ -31,6 +31,7 @@ pub mod bigint {
 pub mod vecbigint {
 
     use curv::BigInt;
+    use curv::arithmetic::big_num::Num;
     use serde::de::SeqAccess;
     use serde::ser::SerializeSeq;
     use serde::{de, ser};

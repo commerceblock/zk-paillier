@@ -14,6 +14,7 @@ use std::iter;
 use std::ops::Shl;
 
 use curv::arithmetic::traits::*;
+use curv::arithmetic::big_num::{One, Zero, Integer};
 use curv::BigInt;
 use paillier::{extract_nroot, DecryptionKey, EncryptionKey};
 use rayon::prelude::*;
@@ -46,7 +47,7 @@ impl NICorrectKeyProof {
             None => SALT_STRING,
         };
 
-        let salt_bn = super::compute_digest(iter::once(BigInt::from(salt)));
+        let salt_bn = super::compute_digest(iter::once(BigInt::from_vec(salt)));
 
         // TODO: use flatten (Morten?)
         let rho_vec = (0..M2)
@@ -68,9 +69,11 @@ impl NICorrectKeyProof {
         NICorrectKeyProof { sigma_vec }
     }
 
+
+
     pub fn verify(&self, ek: &EncryptionKey, salt_str: &[u8]) -> Result<(), CorrectKeyProofError> {
-        let key_length = ek.n.bit_length() as usize;
-        let salt_bn = super::compute_digest(iter::once(BigInt::from(salt_str)));
+        let key_length = ek.n.bit_length();
+        let salt_bn = super::compute_digest(iter::once(BigInt::from_vec(salt_str)));
 
         let rho_vec = (0..M2)
             .map(|i| {

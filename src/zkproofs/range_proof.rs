@@ -15,9 +15,10 @@ use std::mem;
 
 use super::CorrectKeyProofError;
 use bit_vec::BitVec;
-use curv::arithmetic::traits::Samplable;
+use curv::arithmetic::traits::{Converter, Samplable, Modulo};
 use curv::cryptographic_primitives::hashing::hash_sha256::HSha256;
 use curv::cryptographic_primitives::hashing::traits::Hash;
+use curv::arithmetic::big_num::Integer;
 use curv::BigInt;
 use paillier::EncryptWithChosenRandomness;
 use paillier::Paillier;
@@ -361,10 +362,10 @@ impl RangeProofTrait for RangeProof {
                     ) => {
                         let mut res = true;
 
-                        let c = if *j == 1 {
-                            &encrypted_pairs.c1[i] * cipher_x_raw.0.borrow() % &ek.nn
+                        let c: BigInt = if *j == 1 {
+                            BigInt::mod_mul(&encrypted_pairs.c1[i], cipher_x_raw.0.borrow(), &ek.nn)
                         } else {
-                            &encrypted_pairs.c2[i] * cipher_x_raw.0.borrow() % &ek.nn
+                            BigInt::mod_mul(&encrypted_pairs.c2[i], cipher_x_raw.0.borrow(), &ek.nn)
                         };
 
                         let enc_zi = Paillier::encrypt_with_chosen_randomness(
@@ -403,7 +404,7 @@ fn get_paillier_commitment(ek: &EncryptionKey, x: &BigInt, r: &BigInt) -> BigInt
 }
 
 fn compute_digest(bytes: &[u8]) -> BigInt {
-    let input = BigInt::from(bytes);
+    let input = BigInt::from_vec(bytes);
     HSha256::create_hash(&[&input])
 }
 

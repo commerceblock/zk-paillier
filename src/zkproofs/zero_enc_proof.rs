@@ -1,4 +1,5 @@
 use curv::arithmetic::traits::{Modulo, Samplable};
+use curv::arithmetic::big_num::Zero;
 use curv::BigInt;
 use paillier::traits::{Add, Mul};
 use paillier::EncryptWithChosenRandomness;
@@ -93,6 +94,7 @@ mod tests {
     use crate::zkproofs::zero_enc_proof::ZeroStatement;
     use crate::zkproofs::zero_enc_proof::ZeroWitness;
     use curv::arithmetic::traits::Samplable;
+    use curv::arithmetic::big_num::{One, Zero};
     use curv::BigInt;
     use paillier::core::Randomness;
     use paillier::traits::EncryptWithChosenRandomness;

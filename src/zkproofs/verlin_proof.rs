@@ -1,4 +1,5 @@
 use curv::arithmetic::traits::{Modulo, Samplable};
+use curv::arithmetic::big_num::{One, Integer};
 use curv::BigInt;
 use paillier::traits::{Add, Mul};
 use paillier::EncryptWithChosenRandomness;
@@ -160,6 +161,7 @@ mod tests {
     use crate::zkproofs::verlin_proof::VerlinStatement;
     use crate::zkproofs::verlin_proof::VerlinWitness;
     use curv::arithmetic::traits::Samplable;
+    use curv::arithmetic::big_num::{One, Integer};
     use curv::BigInt;
     use paillier::traits::Encrypt;
     use paillier::traits::KeyGeneration;

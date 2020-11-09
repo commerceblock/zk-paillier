@@ -11,6 +11,7 @@
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
 use curv::arithmetic::traits::{Modulo, Samplable};
+use curv::arithmetic::big_num::{One, Zero, Pow, Integer};
 use curv::BigInt;
 use paillier::{EncryptWithChosenRandomness, EncryptionKey, Paillier, Randomness, RawPlaintext};
 
@@ -52,7 +53,7 @@ impl CorrectMessageProof {
         let ui_vec = (0..num_of_message)
             .map(|i| {
                 let gm: BigInt = (valid_messages[i].clone() * &ek.n + BigInt::one()) % &ek.nn;
-                let gm_inv = gm.invert(&ek.nn).unwrap();
+                let gm_inv = BigInt::mod_inv(&gm,&ek.nn);
                 BigInt::mod_mul(&ciphertext, &gm_inv, &ek.nn)
             })
             .collect::<Vec<BigInt>>();
@@ -74,7 +75,7 @@ impl CorrectMessageProof {
                 } else {
                     let zi_n = BigInt::mod_pow(&zi_vec[j], &ek.n, &ek.nn);
                     let ui_ei = BigInt::mod_pow(&ui_vec[i], &ei_vec[j], &ek.nn);
-                    let ui_ei_inv = ui_ei.invert(&ek.nn).unwrap();
+                    let ui_ei_inv = BigInt::mod_inv(&ui_ei,&ek.nn);
                     j += 1;
                     BigInt::mod_mul(&zi_n, &ui_ei_inv, &ek.nn)
                 }
@@ -84,10 +85,10 @@ impl CorrectMessageProof {
         let chal = super::compute_digest(ai_vec.iter());
         let two_bn = BigInt::from(2);
         let two_to_security_param: BigInt = two_bn.pow(B as u32);
-        let chal = chal.modulus(&two_to_security_param);
+        let chal = chal.mod_floor(&two_to_security_param);
 
         let ei_sum = ei_vec.iter().fold(BigInt::zero(), |acc, x| acc + x);
-        let ei_sum = ei_sum.modulus(&two_to_security_param);
+        let ei_sum = ei_sum.mod_floor(&two_to_security_param);
 
         let ei = BigInt::mod_sub(&chal, &ei_sum, &two_to_security_param);
         let ri_ei = BigInt::mod_pow(&r, &ei, &ek.n);
@@ -132,9 +133,9 @@ impl CorrectMessageProof {
         let two_bn = BigInt::from(2);
         let two_to_security_param: BigInt = two_bn.pow(B as u32);
         let chal = super::compute_digest(self.a_vec.iter());
-        let chal = chal.modulus(&two_to_security_param);
+        let chal = chal.mod_floor(&two_to_security_param);
         let ei_sum = self.e_vec.iter().fold(BigInt::zero(), |acc, x| acc + x);
-        let ei_sum = ei_sum.modulus(&two_to_security_param);
+        let ei_sum = ei_sum.mod_floor(&two_to_security_param);
 
         assert_eq!(chal, ei_sum);
 
@@ -143,7 +144,7 @@ impl CorrectMessageProof {
                 let gm: BigInt = (self.valid_messages[i].clone() * self.ek.n.clone()
                     + BigInt::one())
                     % &self.ek.nn;
-                let gm_inv = gm.invert(&self.ek.nn).unwrap();
+                let gm_inv = BigInt::mod_inv(&gm,&self.ek.nn);
                 BigInt::mod_mul(&self.ciphertext, &gm_inv, &self.ek.nn)
             })
             .collect::<Vec<BigInt>>();

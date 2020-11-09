@@ -98,6 +98,7 @@ mod tests {
     use crate::zkproofs::correct_ciphertext::CiphertextStatement;
     use crate::zkproofs::correct_ciphertext::CiphertextWitness;
     use curv::arithmetic::traits::Samplable;
+    use curv::arithmetic::big_num::One;
     use curv::BigInt;
     use paillier::core::Randomness;
     use paillier::traits::EncryptWithChosenRandomness;
