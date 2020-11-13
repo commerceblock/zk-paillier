@@ -62,6 +62,17 @@ pub struct RangeProofNi {
 }
 
 impl RangeProofNi {
+    pub fn new_empty() -> Self {
+        RangeProofNi {
+            ek: EncryptionKey { n: BigInt::from(1), nn: BigInt::from(1)},
+            range: BigInt::from(1),
+            ciphertext: BigInt::from(1),
+            encrypted_pairs: EncryptedPairs { c1: vec!(), c2: vec!() },
+            proof: Proof::new_empty(),
+            error_factor: 10
+        }
+    }
+
     pub fn prove(
         ek: &EncryptionKey,
         range: &BigInt,
