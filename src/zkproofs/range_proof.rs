@@ -79,6 +79,12 @@ pub enum Response {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Proof(Vec<Response>);
 
+impl Proof {
+    pub fn new_empty() -> Self {
+        Proof(vec!())
+    }
+}
+
 pub struct Commitment(BigInt);
 
 impl ChallengeBits {
