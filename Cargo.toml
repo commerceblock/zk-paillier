@@ -39,7 +39,7 @@ num-traits = { git = "https://github.com/mesalock-linux/num-traits-sgx", optiona
 num-integer = { git = "https://github.com/mesalock-linux/num-integer-sgx", optional=true }
 
 [dependencies.curv]
-git = "https://github.com/commerceblock/bitvec-sgx.git"
+git = "https://github.com/commerceblock/curv.git"
 features = ["ec_secp256k1"]
 branch = "sgx"
 
