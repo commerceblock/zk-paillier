@@ -16,18 +16,28 @@ categories = ["cryptography"]
 [lib]
 crate-type = ["lib"]
 
+[features]
+default = ["std", "mesalock_sgx", "i128"]
+i128 = ["num-integer/i128", "num-traits/i128"]
+std = ["mesalock_sgx", "num-integer/std", "num-traits/std", "num-integer/mesalock_sgx", "num-traits/mesalock_sgx"]
+mesalock_sgx = ["sgx_tstd"]
+
 [dependencies]
-paillier = { git = "https://github.com/KZen-networks/rust-paillier", tag = "v0.3.4" }
-rand = "0.6"
-serde = { version = "1.0", features = ["derive"] }
-rayon = "1.1"
-bit-vec = "0.6"
-sha2 = "0.8.0"
-digest = "0.8.1"
+paillier = { path = "/root/deps/rust-paillier" }
+rand = {git = "https://github.com/mesalock-linux/rand-sgx", tag = "v0.7.3_sgx1.1.3", features=["nightly"] }
+serde = { git = "https://github.com/mesalock-linux/serde-sgx" }
+#rayon = "1.1"
+#bit-vec = "0.6"
+#bitvec = { git = "https://github.com/mesalock-linux/bitvec-sgx", tag = "sgx_1.1.3" }
+bitvec = { path = "/root/deps/bitvec-sgx", tag = "sgx_1.1.3" }
+sha2 = { git = "https://github.com/mesalock-linux/rustcrypto-hashes-sgx", tag = "sgx_1.1.3"  }
+digest = { git = "https://github.com/mesalock-linux/rustcrypto-traits-sgx", tag = "sgx_1.1.3" }
+sgx_tstd = { rev = "v1.1.3", git = "https://github.com/apache/teaclave-sgx-sdk.git", optional=true }
+num-traits = { git = "https://github.com/mesalock-linux/num-traits-sgx", optional=true }
+num-integer = { git = "https://github.com/mesalock-linux/num-integer-sgx", optional=true }
 
 [dependencies.curv]
-git = "https://github.com/KZen-networks/curv"
-tag = "v0.2.3"
+path = "/root/deps/curv"
 features = ["ec_secp256k1"]
 
 [dev-dependencies]

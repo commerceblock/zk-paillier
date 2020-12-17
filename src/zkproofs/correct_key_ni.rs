@@ -10,14 +10,15 @@
 
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
-use std::iter;
+use std::{iter, vec::Vec};
 use std::ops::Shl;
 
-use curv::arithmetic::traits::*;
+use curv::arithmetic_sgx::traits::*;
 use curv::BigInt;
+use num_integer::Integer;
 use paillier::{extract_nroot, DecryptionKey, EncryptionKey};
-use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
+use num_traits::{One,Zero};
 // This protocol is based on the NIZK protocol in https://eprint.iacr.org/2018/057.pdf
 // for parameters = e = N, m2 = 11, alpha = 6379 see https://eprint.iacr.org/2018/987.pdf 6.2.3
 // for full details.
@@ -41,7 +42,7 @@ impl NICorrectKeyProof {
         let dk_n = &dk.q * &dk.p;
         let key_length = dk_n.bit_length();
 
-        let salt_bn = BigInt::from(SALT_STRING);
+        let salt_bn = BigInt::from_vec(SALT_STRING);
 
         // TODO: use flatten (Morten?)
         let rho_vec = (0..M2)
@@ -65,7 +66,7 @@ impl NICorrectKeyProof {
 
     pub fn verify(&self, ek: &EncryptionKey) -> Result<(), CorrectKeyProofError> {
         let key_length = ek.n.bit_length() as usize;
-        let salt_bn = BigInt::from(SALT_STRING);
+        let salt_bn = BigInt::from_vec(SALT_STRING);
 
         let rho_vec = (0..M2)
             .map(|i| {
@@ -81,11 +82,11 @@ impl NICorrectKeyProof {
         let gcd_test = alpha_primorial.gcd(&ek.n);
 
         let derived_rho_vec = (0..M2)
-            .into_par_iter()
+            .into_iter()
             .map(|i| BigInt::mod_pow(&self.sigma_vec[i], &ek.n, &ek.n))
             .collect::<Vec<BigInt>>();
 
-        if rho_vec == derived_rho_vec && gcd_test == BigInt::one() {
+        if rho_vec == derived_rho_vec && gcd_test == One::one() {
             Ok(())
         } else {
             Err(CorrectKeyProofError)
@@ -106,7 +107,7 @@ pub fn mask_generation(out_length: usize, seed: &BigInt) -> BigInt {
     msklen_hash_vec
         .iter()
         .zip(0..msklen)
-        .fold(BigInt::zero(), |acc, x| acc + x.0.shl(x.1 * DIGEST_SIZE))
+        .fold(Zero::zero(), |acc, x| acc + x.0.shl(x.1 * DIGEST_SIZE))
 }
 
 #[cfg(test)]

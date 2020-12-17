@@ -12,8 +12,9 @@
 */
 use std::error::Error;
 use std::fmt;
+use std::vec::Vec;
 
-use curv::arithmetic::traits::Converter;
+use curv::arithmetic_sgx::traits::Converter;
 use curv::BigInt;
 use paillier::EncryptionKey;
 use serde::{Deserialize, Serialize};
@@ -155,7 +156,7 @@ mod tests {
 
     use super::RangeProofNi;
     use super::*;
-    use curv::arithmetic::traits::Samplable;
+    use curv::arithmetic_sgx::traits::Samplable;
     use paillier::EncryptWithChosenRandomness;
     use paillier::Paillier;
     use paillier::{Keypair, Randomness, RawPlaintext};

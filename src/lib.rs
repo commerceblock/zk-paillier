@@ -11,5 +11,14 @@
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
 
+#![no_std]
+
+#![cfg_attr(all(target_env = "sgx", target_vendor = "mesalock"), feature(rustc_private))]
+#[cfg(all(feature = "mesalock_sgx", feature = "std", not(target_env = "sgx")))]
+extern crate sgx_tstd as std;
+
+#[cfg(all(feature = "mesalock_sgx", target_env = "sgx"))]
+extern crate std;
+
 mod serialize;
 pub mod zkproofs;

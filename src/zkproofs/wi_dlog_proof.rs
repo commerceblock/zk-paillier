@@ -12,9 +12,14 @@
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
 
-use curv::arithmetic::traits::{Modulo, Samplable};
-use curv::cryptographic_primitives::proofs::ProofError;
+extern crate num_integer;
+
+use curv::arithmetic_sgx::traits::{Modulo, Samplable};
+use curv::cryptographic_primitives_sgx::proofs::ProofError;
 use curv::BigInt;
+use curv::arithmetic_sgx::big_num::Pow;
+use num_integer::Integer;
+use num_traits::One;
 use serde::{Deserialize, Serialize};
 use std::iter;
 
@@ -69,8 +74,8 @@ impl CompositeDLogProof {
         assert!(statement.N > BigInt::from(2).pow(K as u32));
 
         //test that g, ni in multiplecative group Z_N*
-        assert_eq!(statement.g.gcd(&statement.N), BigInt::one());
-        assert_eq!(statement.ni.gcd(&statement.N), BigInt::one());
+        assert_eq!(statement.g.gcd(&statement.N), One::one());
+        assert_eq!(statement.ni.gcd(&statement.N), One::one());
 
         let e = super::compute_digest(
             iter::once(&self.x)
@@ -92,7 +97,8 @@ impl CompositeDLogProof {
 
 pub fn legendre_symbol(a: &BigInt, p: &BigInt) -> i32 {
     let p_minus_1: BigInt = p - BigInt::one();
-    let pow = BigInt::mod_mul(&p_minus_1, &BigInt::from(2).invert(p).unwrap(), p);
+    
+    let pow = BigInt::mod_mul(&p_minus_1, &BigInt::mod_inv(&BigInt::from(2), &p), p);
     let ls = BigInt::mod_pow(a, &pow, p);
     if ls == BigInt::one() {
         1

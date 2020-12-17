@@ -14,17 +14,20 @@ use std::borrow::Borrow;
 use std::mem;
 
 use super::CorrectKeyProofError;
-use bit_vec::BitVec;
-use curv::arithmetic::traits::Samplable;
-use curv::cryptographic_primitives::hashing::hash_sha256::HSha256;
-use curv::cryptographic_primitives::hashing::traits::Hash;
+extern crate bitvec;
+use bitvec::prelude::*;
+use curv::arithmetic_sgx::traits::{Samplable, Converter};
+use curv::cryptographic_primitives_sgx::hashing::hash_sha256::HSha256;
+use curv::cryptographic_primitives_sgx::hashing::traits::Hash;
 use curv::BigInt;
+use num_integer::Integer;
 use paillier::EncryptWithChosenRandomness;
 use paillier::Paillier;
 use paillier::{EncryptionKey, Randomness, RawCiphertext, RawPlaintext};
 use rand::prelude::*;
-use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
+
+use std::vec::Vec;
 
 const STATISTICAL_ERROR_FACTOR: usize = 40;
 
@@ -84,7 +87,10 @@ pub struct Commitment(BigInt);
 impl ChallengeBits {
     fn sample(big_length: usize) -> ChallengeBits {
         let mut rng = thread_rng();
-        let mut bytes: Vec<u8> = vec![0; big_length / 8];
+        let mut bytes = Vec::<u8>::new();
+	for _ in 0..big_length/8 {
+	    bytes.push(0);
+	}
         rng.fill_bytes(&mut bytes);
         ChallengeBits(bytes)
     }
@@ -174,11 +180,11 @@ impl RangeProofTrait for RangeProof {
         let range_scaled_two_thirds = BigInt::from(2) * &range_scaled_third;
 
         let mut w1: Vec<_> = (0..error_factor)
-            .into_par_iter()
+            .into_iter()
             .map(|_| BigInt::sample_range(&range_scaled_third, &range_scaled_two_thirds))
             .collect();
 
-        let mut w2: Vec<_> = w1.par_iter().map(|x| x - &range_scaled_third).collect();
+        let mut w2: Vec<_> = w1.iter().map(|x| x - &range_scaled_third).collect();
 
         // with probability 1/2 switch between w1i and w2i
         for i in 0..error_factor {
@@ -189,17 +195,17 @@ impl RangeProofTrait for RangeProof {
         }
 
         let r1: Vec<_> = (0..error_factor)
-            .into_par_iter()
+            .into_iter()
             .map(|_| BigInt::sample_below(&ek.n))
             .collect();
 
         let r2: Vec<_> = (0..error_factor)
-            .into_par_iter()
+            .into_iter()
             .map(|_| BigInt::sample_below(&ek.n))
             .collect();
 
         let c1: Vec<_> = w1
-            .par_iter()
+            .iter()
             .zip(&r1)
             .map(|(wi, ri)| {
                 Paillier::encrypt_with_chosen_randomness(
@@ -213,7 +219,7 @@ impl RangeProofTrait for RangeProof {
             .collect();
 
         let c2: Vec<_> = w2
-            .par_iter()
+            .iter()
             .zip(&r2)
             .map(|(wi, ri)| {
                 Paillier::encrypt_with_chosen_randomness(
@@ -258,9 +264,9 @@ impl RangeProofTrait for RangeProof {
     ) -> Proof {
         let range_scaled_third: BigInt = range.div_floor(&BigInt::from(3));
         let range_scaled_two_thirds = BigInt::from(2) * &range_scaled_third;
-        let bits_of_e = BitVec::from_bytes(&e.0);
+	let bits_of_e = BitVec::<Msb0, u8>::from_slice(&e.0);
         let reponses: Vec<_> = (0..error_factor)
-            .into_par_iter()
+            .into_iter()
             .map(|i| {
                 let ei = bits_of_e[i];
                 if !ei {
@@ -303,12 +309,11 @@ impl RangeProofTrait for RangeProof {
         let cipher_x_raw = RawCiphertext::from(cipher_x);
         let range_scaled_third: BigInt = range.div_floor(&BigInt::from(3i32));
         let range_scaled_two_thirds: BigInt = BigInt::from(2i32) * &range_scaled_third;
-
-        let bits_of_e = BitVec::from_bytes(&e.0);
+        let bits_of_e = BitVec::<Msb0, u8>::from_slice(&e.0);
         let responses = &proof.0;
 
         let verifications: Vec<bool> = (0..error_factor)
-            .into_par_iter()
+            .into_iter()
             .map(|i| {
                 let ei = bits_of_e[i];
                 let response = &responses[i];
@@ -361,10 +366,12 @@ impl RangeProofTrait for RangeProof {
                     ) => {
                         let mut res = true;
 
-                        let c = if *j == 1 {
-                            &encrypted_pairs.c1[i] * cipher_x_raw.0.borrow() % &ek.nn
+			let ciph_bi: &BigInt = &cipher_x_raw.0.borrow();
+			
+                        let c: BigInt = if *j == 1 {
+                            &encrypted_pairs.c1[i] * ciph_bi % &ek.nn
                         } else {
-                            &encrypted_pairs.c2[i] * cipher_x_raw.0.borrow() % &ek.nn
+                            &encrypted_pairs.c2[i] * ciph_bi % &ek.nn
                         };
 
                         let enc_zi = Paillier::encrypt_with_chosen_randomness(
@@ -403,7 +410,7 @@ fn get_paillier_commitment(ek: &EncryptionKey, x: &BigInt, r: &BigInt) -> BigInt
 }
 
 fn compute_digest(bytes: &[u8]) -> BigInt {
-    let input = BigInt::from(bytes);
+    let input = BigInt::from_vec(bytes);
     HSha256::create_hash(&[&input])
 }
 

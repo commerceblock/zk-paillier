@@ -11,6 +11,8 @@
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
 
+use std::vec::Vec;
+
 mod wi_dlog_proof;
 pub use self::wi_dlog_proof::*;
 
@@ -44,20 +46,21 @@ pub use self::correct_message::CorrectMessageProofError;
 use curv::BigInt;
 use std::borrow::Borrow;
 
-use digest::Digest;
-use sha2::Sha256;
+use sha2::{Sha256, Digest};
+
+use curv::arithmetic_sgx::traits::Converter;
 
 pub fn compute_digest<IT>(it: IT) -> BigInt
 where
     IT: Iterator,
     IT::Item: Borrow<BigInt>,
 {
-    let mut hasher = Sha256::new();
+    let mut hasher = Sha256::default();
     for value in it {
-        let bytes: Vec<u8> = value.borrow().into();
+        let bytes: Vec<u8> = value.borrow().to_vec();
         hasher.input(&bytes);
     }
 
     let result_hex = hasher.result();
-    BigInt::from(&result_hex[..])
+    BigInt::from_vec(&result_hex[..])
 }
