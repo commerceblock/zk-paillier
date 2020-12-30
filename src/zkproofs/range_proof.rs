@@ -78,7 +78,7 @@ pub enum Response {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Proof(Vec<Response>);
+pub struct Proof(pub Vec<Response>);
 
 impl Proof {
     pub fn new_empty() -> Self {
