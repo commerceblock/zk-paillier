@@ -29,6 +29,7 @@ pub use self::correct_key_ni::NICorrectKeyProof;
 mod range_proof;
 pub use self::range_proof::RangeProof;
 pub use self::range_proof::RangeProofTrait;
+pub use self::range_proof::Response;
 
 pub use self::range_proof::ChallengeBits;
 pub use self::range_proof::EncryptedPairs;

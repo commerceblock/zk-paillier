@@ -77,7 +77,7 @@ pub enum Response {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Proof(Vec<Response>);
+pub struct Proof(pub Vec<Response>);
 
 pub struct Commitment(BigInt);
 

@@ -53,12 +53,12 @@ impl Error for RangeProofError {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RangeProofNi {
-    ek: EncryptionKey,
-    range: BigInt,
-    ciphertext: BigInt,
-    encrypted_pairs: EncryptedPairs,
-    proof: Proof,
-    error_factor: usize,
+    pub ek: EncryptionKey,
+    pub range: BigInt,
+    pub ciphertext: BigInt,
+    pub encrypted_pairs: EncryptedPairs,
+    pub proof: Proof,
+    pub error_factor: usize,
 }
 
 impl RangeProofNi {
