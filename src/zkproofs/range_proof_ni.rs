@@ -155,7 +155,7 @@ mod tests {
 
     use super::RangeProofNi;
     use super::*;
-    use curv::arithmetic::traits::Samplable;
+    use curv::arithmetic::{big_num::Integer, traits::Samplable};
     use paillier::EncryptWithChosenRandomness;
     use paillier::Paillier;
     use paillier::{Keypair, Randomness, RawPlaintext};

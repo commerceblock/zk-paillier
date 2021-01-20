@@ -42,6 +42,7 @@ pub use self::correct_message::CorrectMessageProof;
 pub use self::correct_message::CorrectMessageProofError;
 
 use curv::BigInt;
+use curv::arithmetic::traits::Converter;
 use std::borrow::Borrow;
 
 use digest::Digest;
@@ -54,10 +55,10 @@ where
 {
     let mut hasher = Sha256::new();
     for value in it {
-        let bytes: Vec<u8> = value.borrow().into();
+        let bytes: Vec<u8> = value.borrow().to_vec();
         hasher.input(&bytes);
     }
 
     let result_hex = hasher.result();
-    BigInt::from(&result_hex[..])
+    BigInt::from_vec(&result_hex[..])
 }

@@ -14,9 +14,9 @@ use std::iter;
 use std::ops::Shl;
 
 use curv::arithmetic::traits::*;
+use curv::arithmetic::big_num::{One, Zero, Integer};
 use curv::BigInt;
 use paillier::{extract_nroot, DecryptionKey, EncryptionKey};
-use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 // This protocol is based on the NIZK protocol in https://eprint.iacr.org/2018/057.pdf
 // for parameters = e = N, m2 = 11, alpha = 6379 see https://eprint.iacr.org/2018/987.pdf 6.2.3
@@ -41,7 +41,7 @@ impl NICorrectKeyProof {
         let dk_n = &dk.q * &dk.p;
         let key_length = dk_n.bit_length();
 
-        let salt_bn = BigInt::from(SALT_STRING);
+        let salt_bn = BigInt::from_vec(SALT_STRING);
 
         // TODO: use flatten (Morten?)
         let rho_vec = (0..M2)
@@ -65,7 +65,7 @@ impl NICorrectKeyProof {
 
     pub fn verify(&self, ek: &EncryptionKey) -> Result<(), CorrectKeyProofError> {
         let key_length = ek.n.bit_length() as usize;
-        let salt_bn = BigInt::from(SALT_STRING);
+        let salt_bn = BigInt::from_vec(SALT_STRING);
 
         let rho_vec = (0..M2)
             .map(|i| {
@@ -77,11 +77,12 @@ impl NICorrectKeyProof {
                 mask_generation(key_length, &seed_bn) % &ek.n
             })
             .collect::<Vec<BigInt>>();
+
         let alpha_primorial: BigInt = str::parse(&P).unwrap();
         let gcd_test = alpha_primorial.gcd(&ek.n);
 
         let derived_rho_vec = (0..M2)
-            .into_par_iter()
+            .into_iter()
             .map(|i| BigInt::mod_pow(&self.sigma_vec[i], &ek.n, &ek.n))
             .collect::<Vec<BigInt>>();
 
