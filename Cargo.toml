@@ -1,6 +1,6 @@
 [package]
 name = "zk-paillier"
-version = "0.3.7"
+version = "0.3.8"
 edition = "2018"
 
 authors = [
@@ -26,8 +26,8 @@ sha2 = "0.8.0"
 digest = "0.8.1"
 
 [dependencies.curv]
-git = "https://github.com/KZen-networks/curv"
-tag = "v0.2.3"
+git = "https://github.com/commerceblock/curv"
+tag = "v0.2.8"
 features = ["ec_secp256k1"]
 
 [dev-dependencies]
