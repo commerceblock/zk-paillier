@@ -11,18 +11,6 @@
     @license GPL-3.0+ <https://github.com/KZen-networks/zk-paillier/blob/master/LICENSE>
 */
 
-mod zero_enc_proof;
-pub use self::zero_enc_proof::*;
-
-mod correct_ciphertext;
-pub use self::correct_ciphertext::*;
-
-mod multiplication_proof;
-pub use self::multiplication_proof::*;
-
-mod verlin_proof;
-pub use self::verlin_proof::*;
-
 mod wi_dlog_proof;
 pub use self::wi_dlog_proof::*;
 
@@ -34,7 +22,6 @@ pub use self::correct_key::CorrectKeyProof;
 pub use self::correct_key::VerificationAid;
 mod correct_key;
 pub use self::correct_key::CorrectKey;
-pub use self::correct_key_ni::SALT_STRING;
 
 mod correct_key_ni;
 pub use self::correct_key_ni::CorrectKeyProofError;
