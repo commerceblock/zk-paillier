@@ -17,7 +17,7 @@ categories = ["cryptography"]
 crate-type = ["lib"]
 
 [dependencies]
-paillier = { git = "https://github.com/KZen-networks/rust-paillier", tag = "v0.3.4" }
+paillier = { git = "https://github.com/commerceblock/rust-paillier", tag = "v0.3.7" }
 rand = "0.6"
 serde = { version = "1.0", features = ["derive"] }
 rayon = "1.1"
